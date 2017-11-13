@@ -34,6 +34,8 @@ app.get('/', html_routes.homePage);
 
 const server = app.listen(process.env.PORT || 3000);
 
+/* Source: https://www.smashingmagazine.com/2017/08/ai-chatbot-web-speech-api-node-js/ */
+
 const io = require('socket.io')(server);
 
 io.on('connection', function(socket){
@@ -50,8 +52,8 @@ io.on('connection', function(socket) {
     });
 
     apiaiReq.on('response', (response) => {
-      let aiText = response.result.fulfillment.speech;
-      socket.emit('bot reply', aiText); // Send the result back to the browser!
+	    let aiText = response.result.fulfillment.speech;
+	    socket.emit('bot reply', aiText); // Send the result back to the browser!
     });
 
     apiaiReq.on('error', (error) => {
