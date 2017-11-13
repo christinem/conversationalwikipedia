@@ -10,6 +10,7 @@ $('#talk').click(function() {
     recognition.start();
 });
 
+// Testing function -- remove after
 $('#test-talk').click(function() {
     let val = $("#test-speech").val();
     socket.emit('chat message', val);
@@ -21,7 +22,6 @@ recognition.addEventListener('result', (e) => {
 
     console.log('Confidence: ' + e.results[0][0].confidence);
 
-    // We will use the Socket.IO here later…
     socket.emit('chat message', text);
 });
 

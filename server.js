@@ -4,6 +4,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var html_routes = require('./routes/html');
+var wiki_functions = require('./routes/wikipedia')
 var sassMiddleware = require('node-sass-middleware');
 var apiai = require('apiai')('f2a2324de92148ac903a7990e9a7ced0');
 var app = express();
@@ -34,8 +35,9 @@ app.get('/', html_routes.homePage);
 
 const server = app.listen(process.env.PORT || 3000);
 
-/* Source: https://www.smashingmagazine.com/2017/08/ai-chatbot-web-speech-api-node-js/ */
+// ------------ Socket and DialogFlow connection ------------ //
 
+/* Source: Adjusted from https://www.smashingmagazine.com/2017/08/ai-chatbot-web-speech-api-node-js/ */
 const io = require('socket.io')(server);
 
 io.on('connection', function(socket){
@@ -46,13 +48,16 @@ io.on('connection', function(socket) {
   socket.on('chat message', (text) => {
 
     // Get a reply from API.AI
-
     let apiaiReq = apiai.textRequest(text, {
-      sessionId: "session"
+      sessionId: makeid()
     });
 
     apiaiReq.on('response', (response) => {
+    	console.log(response);
+
+    	// send result from Dialogflow to browser
 	    let aiText = response.result.fulfillment.speech;
+	    let topic = response.result.parameters.topic;
 	    socket.emit('bot reply', aiText); // Send the result back to the browser!
     });
 
@@ -65,6 +70,17 @@ io.on('connection', function(socket) {
   });
 });
 
+// --------------- Helpers ---------------- //
+
+function makeid() {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 5; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
 
 
 console.log('Listening on port 3000');
