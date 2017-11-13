@@ -23,9 +23,8 @@ function synthVoice(text) {
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance();
     var voices = synth.getVoices();
-    console.log(voices);
-    // utterance.voice = voices[];
     utterance.text = text;
+    utterance.voice = voices[48];
     synth.speak(utterance);
 }
 
