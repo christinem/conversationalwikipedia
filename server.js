@@ -3,8 +3,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var html_routes = require('./routes/html');
 var sassMiddleware = require('node-sass-middleware');
-var routes = require('./routes/routes');
+var apiai = require('apiai')('f2a2324de92148ac903a7990e9a7ced0');
 var app = express();
 
 app.use(sassMiddleware({
@@ -14,7 +15,6 @@ app.use(sassMiddleware({
     debug: true,
     prefix:  '/public/stylesheets' 
 }));
-
 
 app.use(express.static(__dirname + '/assets'));
 app.use(express.static(__dirname + '/'));
@@ -32,7 +32,37 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', html_routes.homePage);
 
-app.get('/scholar_evaluate', search_routes.googleScholarEvaluate);
+const server = app.listen(process.env.PORT || 3000);
 
-app.listen(process.env.PORT || 3000);
+const io = require('socket.io')(server);
+
+io.on('connection', function(socket){
+  console.log('a user connected');
+});
+
+io.on('connection', function(socket) {
+  socket.on('chat message', (text) => {
+
+    // Get a reply from API.AI
+
+    let apiaiReq = apiai.textRequest(text, {
+      sessionId: "session"
+    });
+
+    apiaiReq.on('response', (response) => {
+      let aiText = response.result.fulfillment.speech;
+      socket.emit('bot reply', aiText); // Send the result back to the browser!
+    });
+
+    apiaiReq.on('error', (error) => {
+      console.log(error);
+    });
+
+    apiaiReq.end();
+
+  });
+});
+
+
+
 console.log('Listening on port 3000');
