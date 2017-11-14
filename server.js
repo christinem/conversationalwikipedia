@@ -44,6 +44,7 @@ io.on('connection', function(socket){
   console.log('a user connected');
 });
 
+
 io.on('connection', function(socket) {
   socket.on('chat message', (text) => {
 
@@ -59,6 +60,10 @@ io.on('connection', function(socket) {
 	    let aiText = response.result.fulfillment.speech;
 	    let topic = response.result.parameters.topic;
 	    socket.emit('bot reply', aiText); // Send the result back to the browser!
+
+	    // Get result of topic from wikipedia
+	    // result = wiki_functions.getResultfromWikipedia(topic);
+	    // socket.emit('bot reply', result);
     });
 
     apiaiReq.on('error', (error) => {
