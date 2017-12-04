@@ -35,6 +35,7 @@ app.get('/', html_routes.homePage);
 
 const server = app.listen(process.env.PORT || 3000);
 var sessionId = makeid();
+var currentCategories
 
 // ------------ Socket and DialogFlow connection ------------ //
 
@@ -42,55 +43,61 @@ var sessionId = makeid();
 const io = require('socket.io')(server);
 
 io.on('connection', function(socket){
-  console.log('a user connected');
+    console.log('a user connected');
 });
 
 // When a response from the user is recieved
 io.on('connection', function(socket) {
-  socket.on('chat message', (text) => {
+    socket.on('chat message', (text) => {
 
-    // Get a reply from API.AI
-    let apiaiReq = apiai.textRequest(text, {
-      sessionId: sessionId
+        // Get a reply from API.AI
+        let apiaiReq = apiai.textRequest(text, {
+            sessionId: sessionId
+        });
+
+        apiaiReq.on('response', (response) => {
+            let res = response.result;
+
+            console.log(res);
+
+            let aiText = res.fulfillment.speech;
+            let topic = res.contexts.length != 0 ? res.contexts.find(function(c) {return c.name == "current-topic"}).parameters.topic : res.parameters.topic;
+            let intent = res.metadata.intentName;
+            let result = "";
+
+            var emitResponseObject = {emitResponse: emitResponse, socket: socket, aiText: aiText};
+
+            // check the intent name and decide action based on it
+            if (intent == 'list-categories') {
+                wiki_functions.getCategories(topic, function (categories) {
+                    currentCategories = categories;
+                    wiki_functions.listCategories(currentCategories.splice(0, 5), emitResponseObject);
+                });
+            } else if (intent == 'list-more-categories') {
+                if (currentCategories.length == 0) {
+                    emitResponse(socket, "There are no more categories to list. Do you want to list them again?", "");
+                } else {
+                    wiki_functions.listCategories(currentCategories.splice(0, 5), emitResponseObject);
+                }
+            } else if (intent == 'request-category') {
+                    var category = res.parameters.category;
+                    wiki_functions.getCategory(topic, category, emitResponseObject);
+            } else if (intent == 'request-summary') {
+                    wiki_functions.getSummary(topic, emitResponseObject);
+            } else if (intent == 'correct-error') {
+
+            } else {
+                emitResponse(socket, aiText, "");
+            }
+        });
+
+        apiaiReq.on('error', (error) => {
+            console.log(error);
+        });
+
+        apiaiReq.end();
+
     });
-
-    apiaiReq.on('response', (response) => {
-
-    	let res = response.result;
-
-    	console.log(res);
-
-	    let aiText = res.fulfillment.speech;
-	    let topic = res.contexts.length != 0 ? res.contexts[0].parameters.topic : res.parameters.topic;
-	    let intent = res.metadata.intentName;
-	    let result = "";
-
-      var emitResponseObject = {emitResponse: emitResponse, socket: socket, aiText: aiText};
-
-	    // check the intent name and decide action based on it
-	    if (intent == 'list-categories') {
-	    	result = wiki_functions.getCategories(topic, emitResponseObject);
-	    } else if (intent == 'request-category') {
-	    	var category = res.parameters.category;
-	    	result = wiki_functions.getCategory(topic, category, emitResponseObject);
-	    } else if (intent == 'request-summary') {
-	    	result = wiki_functions.getSummary(topic, "", emitResponseObject);
-	    } else {
-        emitResponse(socket, aiText, "");
-      }
-
-	    // Get result of topic from wikipedia
-	    // result = wiki_functions.getResultfromWikipedia(topic);
-	    // socket.emit('bot reply', result);
-    });
-
-    apiaiReq.on('error', (error) => {
-      console.log(error);
-    });
-
-    apiaiReq.end();
-
-  });
 });
 
 // --------------- Helpers ---------------- //
@@ -102,13 +109,13 @@ function emitResponse(socket, aiText, result) {
 }
 
 function makeid() {
-  var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-  for (var i = 0; i < 5; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
+    for (var i = 0; i < 5; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
 
-  return text;
+    return text;
 }
 
 

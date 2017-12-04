@@ -19,14 +19,21 @@ exports.getCategories = function(topic, callback) {
     wikipedia.from_api(topic, "en", function(markup) {
         var data = wikipedia.parse(markup);
         var categories = data.sections.map(function(s) { return s.title });
-        var result = "";
 
-        categories.forEach(function(c) {
-            result += c + ", ";
-        })
-
-        callback.emitResponse(callback.socket, callback.aiText, result);
+        callback(categories);
     });
+}
+
+exports.listCategories = function(categories, callback) {
+    var result = "";
+
+    categories.forEach(function(c) {
+        result += c + ", ";
+    })
+
+    result += ". Would you like to hear more categories?";
+
+    callback.emitResponse(callback.socket, callback.aiText, result);
 }
 
 exports.getCategory = function(topic, category, callback) {
