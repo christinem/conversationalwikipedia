@@ -27,11 +27,11 @@ exports.getCategories = function(topic, callback) {
 exports.listCategories = function(categories, callback) {
     var result = "";
 
-    categories.forEach(function(c) {
-        result += c + ", ";
-    })
+    for (var i = 0; i < categories.length - 1; i++) {
+        result += categories[i] + ", ";
+    }
 
-    result += ". Would you like to hear more categories?";
+    result += "and " + categories[categories.length - 1] + ". Would you like to hear more categories?";
 
     callback.emitResponse(callback.socket, callback.aiText, result);
 }

@@ -63,7 +63,7 @@ io.on('connection', function(socket) {
             let aiText = res.fulfillment.speech;
             let intent = res.metadata.intentName;
             let topic = "";
-            if (intent != "request-new-topic") {
+            if (intent != "new-topic") {
                topic = res.contexts.length != 0 ? res.contexts.find(function(c) {return c.name == "current-topic"}).parameters.topic : res.parameters.topic; 
             }
             let result = "";

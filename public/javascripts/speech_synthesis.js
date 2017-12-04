@@ -5,7 +5,7 @@ const recognition = new SpeechRecognition();
 const socket = io();
 const synth = window.speechSynthesis;
 
-var testing = false;
+var testing = true;
 
 $('#talk').click(function() {
     synth.cancel();
@@ -29,11 +29,7 @@ recognition.addEventListener('result', (e) => {
 
 function synthVoice(text) {
     const utterance = new SpeechSynthesisUtterance();
-    // var voices = synth.getVoices();
-    // utterance.text = text;
-    // utterance.voice = voices[48];
     speakResponse(text);
-    // speechUtteranceChunker(utterance, {}, function() {});
 }
 
 socket.on('bot reply', function(replyText) {
