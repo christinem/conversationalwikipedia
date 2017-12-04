@@ -3,10 +3,12 @@
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
 const socket = io();
+const synth = window.speechSynthesis;
 
 var testing = true;
 
 $('#talk').click(function() {
+    synth.cancel();
     recognition.start();
 });
 
@@ -26,11 +28,10 @@ recognition.addEventListener('result', (e) => {
 });
 
 function synthVoice(text) {
-    const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance();
     var voices = synth.getVoices();
     utterance.text = text;
-    utterance.voice = voices[48];
+    // utterance.voice = voices[48];
     synth.speak(utterance);
 }
 
@@ -41,4 +42,3 @@ socket.on('bot reply', function(replyText) {
         synthVoice(replyText);
     }
 });
-
