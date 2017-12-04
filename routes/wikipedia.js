@@ -24,14 +24,18 @@ exports.getCategories = function(topic, callback) {
     });
 }
 
-exports.listCategories = function(categories, callback) {
+exports.listCategories = function(categories, callback, allCategories) {
     var result = "";
 
     for (var i = 0; i < categories.length - 1; i++) {
         result += categories[i] + ", ";
     }
 
-    result += "and " + categories[categories.length - 1] + ". Would you like to hear more categories?";
+    result += "and " + categories[categories.length - 1];
+
+    if (!allCategories) {
+        result = result + ". Would you like to hear more categories?";
+    }
 
     callback.emitResponse(callback.socket, callback.aiText, result);
 }

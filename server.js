@@ -71,10 +71,15 @@ io.on('connection', function(socket) {
             var emitResponseObject = {emitResponse: emitResponse, socket: socket, aiText: aiText};
 
             // check the intent name and decide action based on it
-            if (intent == 'list-categories') {
+            if (intent == 'list-categories' || intent == 'list-all-categories') {
                 wiki_functions.getCategories(topic, function (categories) {
                     currentCategories = categories;
-                    wiki_functions.listCategories(currentCategories.splice(0, 5), emitResponseObject);
+                    if (intent == "list-categories") {
+                        wiki_functions.listCategories(currentCategories.splice(0, 5), emitResponseObject, false);
+                    } else {
+                        wiki_functions.listCategories(currentCategories, emitResponseObject, true);
+                    }
+                    
                 });
             } else if (intent == 'list-more-categories') {
                 if (currentCategories.length == 0) {
