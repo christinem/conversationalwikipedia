@@ -5,7 +5,7 @@ const recognition = new SpeechRecognition();
 const socket = io();
 const synth = window.speechSynthesis;
 
-var testing = true;
+var testing = false;
 
 $('#talk').click(function() {
     synth.cancel();

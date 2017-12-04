@@ -9,8 +9,14 @@ html.
       
     </head>
     <body>
-        <button id="talk">Press button to Speak</button> 
-    
+        <button id="talk">Talk</button> 
+        <br> <br>
+        <input id="test-speech" /> <button id="test-talk">Test Talk</button>
+        <br> <br>
+        <p> Result: </p>
+        <br>
+        <div id="result"> </div>
+
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
         <script src="/public/javascripts/speech_synthesis.js" type="text/javascript"></script>
