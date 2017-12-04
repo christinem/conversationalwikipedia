@@ -83,7 +83,7 @@ var speakResponse = function (text)
 {
     speechSynthesis.cancel(); // if it errors, this clears out the error.
 
-    var sentences = text.split(".");
+    var sentences = text.split(/\s*[,.]+\s*/);
     for (var i=0;i< sentences.length;i++)
     {
         var toSay = sayit();
