@@ -1,5 +1,20 @@
 var wikipedia = require("wtf_wikipedia");
 
+exports.checkForTopic = function(topic, callback) {
+    wikipedia.from_api(topic, "en", function(markup) {
+        var data = wikipedia.parse(markup);
+        result = "";
+        console.log(data);
+
+        if (data.type == "page") {
+            callback.emitResponse(callback.socket, callback.aiText, result);
+        } else {
+            var aiText = "I'm sorry, I don't have any information about " + topic + ". Would you like to choose a new topic?";
+            callback.emitResponse(callback.socket, aiText, result);
+        }
+    });
+}
+
 exports.getSummary = function(topic, callback) {
     wikipedia.from_api(topic, "en", function(markup) {
         console.log("Summary function topic: ", topic);

@@ -71,7 +71,9 @@ io.on('connection', function(socket) {
             var emitResponseObject = {emitResponse: emitResponse, socket: socket, aiText: aiText};
 
             // check the intent name and decide action based on it
-            if (intent == 'list-categories' || intent == 'list-all-categories') {
+            if (intent == "request-topic") {
+                wiki_functions.checkForTopic(topic, emitResponseObject);
+            } else if (intent == 'list-categories' || intent == 'list-all-categories') {
                 wiki_functions.getCategories(topic, function (categories) {
                     currentCategories = categories;
                     if (intent == "list-categories") {
@@ -79,7 +81,6 @@ io.on('connection', function(socket) {
                     } else {
                         wiki_functions.listCategories(currentCategories, emitResponseObject, true);
                     }
-                    
                 });
             } else if (intent == 'list-more-categories') {
                 if (currentCategories.length == 0) {
@@ -88,12 +89,12 @@ io.on('connection', function(socket) {
                     wiki_functions.listCategories(currentCategories.splice(0, 5), emitResponseObject);
                 }
             } else if (intent == 'request-category') {
-                    var category = res.parameters.category;
-                    wiki_functions.getCategory(topic, category, emitResponseObject);
+                var category = res.parameters.category;
+                wiki_functions.getCategory(topic, category, emitResponseObject);
             } else if (intent == 'request-summary') {
-                    wiki_functions.getSummary(topic, emitResponseObject);
+                wiki_functions.getSummary(topic, emitResponseObject);
             } else if (intent == 'correct-error') {
-
+               
             } else {
                 emitResponse(socket, aiText, "");
             }
