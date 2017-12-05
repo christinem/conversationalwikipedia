@@ -77,6 +77,7 @@ io.on('connection', function(socket) {
                 wiki_functions.getCategories(topic, function (categories) {
                     currentCategories = categories;
                     if (intent == "list-categories") {
+                        emitResponseObject.aiText = emitResponseObject.aiText +  " There are " + categories.length + "categories in total. ";
                         wiki_functions.listCategories(currentCategories.splice(0, 5), emitResponseObject, false);
                     } else {
                         wiki_functions.listCategories(currentCategories, emitResponseObject, true);
