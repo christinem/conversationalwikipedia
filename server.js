@@ -35,7 +35,8 @@ app.get('/', html_routes.homePage);
 
 const server = app.listen(process.env.PORT || 3000);
 var sessionId = makeid();
-var currentCategories
+var currentCategories = [];
+var currentSentences = [];
 
 // ------------ Socket and DialogFlow connection ------------ //
 
@@ -91,11 +92,31 @@ io.on('connection', function(socket) {
                 }
             } else if (intent == 'request-category') {
                 var category = res.parameters.category;
-                wiki_functions.getCategory(topic, category, emitResponseObject);
+                wiki_functions.getCategory(topic, category, function(sentences) {
+                    // if the category exists
+                    if (sentences.length > 0) {
+                        currentSentences = sentences;
+                        wiki_functions.saySection(currentSentences.splice(0, 3), emitResponseObject);
+                    // else we tell user we have no categories
+                    } else {
+                        emitResponse(socket, "", "I'm sorry, I don't have any information on " + category + " for " + topic + ". Do you want to choose another category or pick a new topic?");
+                    }
+                    
+                });
             } else if (intent == 'request-summary') {
-                wiki_functions.getSummary(topic, emitResponseObject);
+                wiki_functions.getSummary(topic, function(sentences) {
+                    currentSentences = sentences;
+                    wiki_functions.saySection(currentSentences.splice(0, 3), emitResponseObject);
+                });
+            } else if (intent == 'request-more') {
+                if (currentSentences.length == 0) {
+                    emitResponse(socket, "I've told you everything in this section. We can talk about a new topic, or I can tell you about a different section.", "");
+                } else {
+                    console.log(currentSentences);
+                    wiki_functions.saySection(currentSentences.splice(0, 3), emitResponseObject);
+                }
             } else if (intent == 'correct-error') {
-               
+                
             } else {
                 emitResponse(socket, aiText, "");
             }

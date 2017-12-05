@@ -20,13 +20,7 @@ exports.getSummary = function(topic, callback) {
         console.log("Summary function topic: ", topic);
         var data = wikipedia.parse(markup);
         var sentences = data.sections[0].sentences;
-        var result = "";
-
-        sentences.forEach(function(s) {
-            result += s.text + " ";
-        });
-
-        callback.emitResponse(callback.socket, callback.aiText, result);
+        callback(sentences);
     });
 }
 
@@ -61,16 +55,22 @@ exports.getCategory = function(topic, category, callback) {
         var section = data.sections.find(function(s) { return s.title.toLowerCase() == category.toLowerCase()});
         var result = "";
         var aiText = callback.aiText;
+        var sentences = [];
 
-        if (section == undefined || section.sentences.length == 0) {
-            result = "I'm sorry, I don't have any information on " + category + " for " + topic + ". Do you want to choose another category or pick a new topic?";
-            aiText = "";
-        } else {
-            section.sentences.forEach(function(s) {
-                result += s.text + " ";
-            });
+        if (section != undefined && section.sentences.length > 0) {
+            sentences = section.sentences;
         }
 
-        callback.emitResponse(callback.socket, aiText, result);
+        callback(sentences);
     });
 };
+
+exports.saySection = function(sentences, callback) {
+    var result = "";
+
+    sentences.forEach(function(s) {
+        result += s.text + " ";
+    });
+
+    callback.emitResponse(callback.socket, callback.aiText, result + ". Would you like me to continue?");
+}
